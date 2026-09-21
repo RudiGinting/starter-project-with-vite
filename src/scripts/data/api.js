@@ -1,6 +1,6 @@
-import CONFIG from '../config';
+import CONFIG from "../config";
 
-const STORAGE_KEY = 'storyapp-token';
+const STORAGE_KEY = "storyapp-token";
 
 const ENDPOINTS = {
   REGISTER: `${CONFIG.BASE_URL}/register`,
@@ -24,8 +24,8 @@ export function clearAuthToken() {
 
 export async function registerUser({ name, email, password }) {
   const response = await fetch(ENDPOINTS.REGISTER, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, email, password }),
   });
 
@@ -34,8 +34,8 @@ export async function registerUser({ name, email, password }) {
 
 export async function loginUser({ email, password }) {
   const response = await fetch(ENDPOINTS.LOGIN, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
 
@@ -44,11 +44,14 @@ export async function loginUser({ email, password }) {
 
 export async function getStories({ page = 1, size = 10, location = 0 } = {}) {
   const token = getAuthToken();
-  const response = await fetch(`${ENDPOINTS.STORIES}?page=${page}&size=${size}&location=${location}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
+  const response = await fetch(
+    `${ENDPOINTS.STORIES}?page=${page}&size=${size}&location=${location}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+  );
 
   return response.json();
 }
@@ -56,7 +59,7 @@ export async function getStories({ page = 1, size = 10, location = 0 } = {}) {
 export async function addStory(formData) {
   const token = getAuthToken();
   const response = await fetch(ENDPOINTS.STORIES, {
-    method: 'POST',
+    method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -81,8 +84,7 @@ export async function getVapidPublicKey() {
   try {
     const response = await fetch(ENDPOINTS.VAPID_KEY);
     if (response.ok) return response.json();
-  } catch {
-  }
+  } catch {}
 
   return { publicKey: CONFIG.VAPID_PUBLIC_KEY };
 }
@@ -90,10 +92,10 @@ export async function getVapidPublicKey() {
 export async function subscribePush(subscription) {
   const token = getAuthToken();
   const response = await fetch(ENDPOINTS.SUBSCRIBE, {
-    method: 'POST',
+    method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(subscription),
   });
@@ -104,10 +106,10 @@ export async function subscribePush(subscription) {
 export async function unsubscribePush(endpoint) {
   const token = getAuthToken();
   const response = await fetch(ENDPOINTS.SUBSCRIBE, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ endpoint }),
   });

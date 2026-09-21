@@ -1,39 +1,49 @@
-const CACHE_NAME = 'storymap-shell-v2';
+const CACHE_NAME = "storymap-shell-v2";
 const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/images/logo.png',
-  '/manifest.webmanifest',
+  "/",
+  "/index.html",
+  "/images/logo.png",
+  "/manifest.webmanifest",
 ];
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)),
+  );
   self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(
-      keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)),
-    )),
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key !== CACHE_NAME)
+            .map((key) => caches.delete(key)),
+        ),
+      ),
   );
   self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
 
   const requestUrl = new URL(event.request.url);
 
-  if (event.request.mode === 'navigate') {
+  if (event.request.mode === "navigate") {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', copy));
+          caches
+            .open(CACHE_NAME)
+            .then((cache) => cache.put("/index.html", copy));
           return response;
         })
-        .catch(() => caches.match('/index.html')),
+        .catch(() => caches.match("/index.html")),
     );
     return;
   }
@@ -41,43 +51,51 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        if (!response.ok || requestUrl.origin !== self.location.origin) return response;
+        if (!response.ok || requestUrl.origin !== self.location.origin)
+          return response;
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         return response;
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match('/index.html'))),
+      .catch(() =>
+        caches
+          .match(event.request)
+          .then((cached) => cached || caches.match("/index.html")),
+      ),
   );
 });
 
-self.addEventListener('push', (event) => {
+self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {};
   const storyId = data.storyId || data.id;
-  const title = data.title || 'Cerita baru di StoryMap';
+  const title = data.title || "Cerita baru di StoryMap";
   const options = {
-    body: data.message || data.body || 'Ada cerita baru yang bisa Anda jelajahi.',
-    icon: data.icon || '/images/logo.png',
-    badge: data.badge || '/images/logo.png',
+    body:
+      data.message || data.body || "Ada cerita baru yang bisa Anda jelajahi.",
+    icon: data.icon || "/images/logo.png",
+    badge: data.badge || "/images/logo.png",
     data: { storyId },
-    tag: storyId ? `story-${storyId}` : 'storymap-update',
+    tag: storyId ? `story-${storyId}` : "storymap-update",
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
-self.addEventListener('notificationclick', (event) => {
+self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const storyId = event.notification.data && event.notification.data.storyId;
-  const targetUrl = storyId ? `/#/stories/${storyId}` : '/#/';
+  const targetUrl = storyId ? `/#/stories/${storyId}` : "/#/";
 
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      const client = windowClients.find((item) => 'focus' in item);
-      if (client) {
-        client.navigate(targetUrl);
-        return client.focus();
-      }
-      return clients.openWindow(targetUrl);
-    }),
+    clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((windowClients) => {
+        const client = windowClients.find((item) => "focus" in item);
+        if (client) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+        return clients.openWindow(targetUrl);
+      }),
   );
 });

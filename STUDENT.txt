@@ -1,2 +1,2 @@
-APP_URL=<url_aplikasi>
-MAP_SERVICE_API_KEY=<api_key>
+APP_URL=https://velvety-gecko-88fc6f.netlify.app
+MAP_SERVICE_API_KEY=NO_KEY_REQUIRED

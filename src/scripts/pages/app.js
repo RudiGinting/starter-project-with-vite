@@ -1,7 +1,11 @@
-import routes from '../routes/routes';
-import { getActiveRoute } from '../routes/url-parser';
-import { getAuthToken, clearAuthToken } from '../data/api';
-import { disablePushNotifications, enablePushNotifications, getPushSubscription } from '../utils/push';
+import routes from "../routes/routes";
+import { getActiveRoute } from "../routes/url-parser";
+import { getAuthToken, clearAuthToken } from "../data/api";
+import {
+  disablePushNotifications,
+  enablePushNotifications,
+  getPushSubscription,
+} from "../utils/push";
 
 class App {
   #content = null;
@@ -14,8 +18,8 @@ class App {
     this.#content = content;
     this.#drawerButton = drawerButton;
     this.#navigationDrawer = navigationDrawer;
-    this.#logoutButton = document.querySelector('#logout-button');
-    this.#pushToggle = document.querySelector('#push-toggle');
+    this.#logoutButton = document.querySelector("#logout-button");
+    this.#pushToggle = document.querySelector("#push-toggle");
 
     this.#setupDrawer();
     this.#setupLogout();
@@ -23,24 +27,24 @@ class App {
   }
 
   #setupDrawer() {
-    this.#drawerButton.addEventListener('click', () => {
-      const isOpen = this.#navigationDrawer.classList.toggle('open');
-      this.#drawerButton.setAttribute('aria-expanded', String(isOpen));
+    this.#drawerButton.addEventListener("click", () => {
+      const isOpen = this.#navigationDrawer.classList.toggle("open");
+      this.#drawerButton.setAttribute("aria-expanded", String(isOpen));
     });
 
-    document.body.addEventListener('click', (event) => {
+    document.body.addEventListener("click", (event) => {
       if (
         !this.#navigationDrawer.contains(event.target) &&
         !this.#drawerButton.contains(event.target)
       ) {
-        this.#navigationDrawer.classList.remove('open');
-        this.#drawerButton.setAttribute('aria-expanded', 'false');
+        this.#navigationDrawer.classList.remove("open");
+        this.#drawerButton.setAttribute("aria-expanded", "false");
       }
 
-      this.#navigationDrawer.querySelectorAll('a').forEach((link) => {
+      this.#navigationDrawer.querySelectorAll("a").forEach((link) => {
         if (link.contains(event.target)) {
-          this.#navigationDrawer.classList.remove('open');
-          this.#drawerButton.setAttribute('aria-expanded', 'false');
+          this.#navigationDrawer.classList.remove("open");
+          this.#drawerButton.setAttribute("aria-expanded", "false");
         }
       });
     });
@@ -49,10 +53,10 @@ class App {
   #setupLogout() {
     if (!this.#logoutButton) return;
 
-    this.#logoutButton.addEventListener('click', (event) => {
+    this.#logoutButton.addEventListener("click", (event) => {
       event.preventDefault();
       clearAuthToken();
-      location.hash = '#/login';
+      location.hash = "#/login";
       this.renderPage();
     });
   }
@@ -60,7 +64,7 @@ class App {
   #setupPushToggle() {
     if (!this.#pushToggle) return;
 
-    this.#pushToggle.addEventListener('click', async () => {
+    this.#pushToggle.addEventListener("click", async () => {
       this.#pushToggle.disabled = true;
       try {
         const subscription = await getPushSubscription();
@@ -81,16 +85,18 @@ class App {
   async #updatePushToggle() {
     if (!this.#pushToggle) return;
     const subscription = await getPushSubscription();
-    this.#pushToggle.textContent = subscription ? 'Nonaktifkan notifikasi' : 'Aktifkan notifikasi';
+    this.#pushToggle.textContent = subscription
+      ? "Nonaktifkan notifikasi"
+      : "Aktifkan notifikasi";
   }
 
   #updateNavigation() {
     const isAuthenticated = Boolean(getAuthToken());
-    const loginLink = document.querySelector('#nav-login');
-    const registerLink = document.querySelector('#nav-register');
-    const homeLink = document.querySelector('#nav-home');
-    const addStoryLink = document.querySelector('#nav-add-story');
-    const logoutLink = document.querySelector('#logout-button');
+    const loginLink = document.querySelector("#nav-login");
+    const registerLink = document.querySelector("#nav-register");
+    const homeLink = document.querySelector("#nav-home");
+    const addStoryLink = document.querySelector("#nav-add-story");
+    const logoutLink = document.querySelector("#logout-button");
 
     [homeLink, addStoryLink, logoutLink].forEach((element) => {
       if (element) {
@@ -106,10 +112,10 @@ class App {
 
   async renderPage() {
     const url = getActiveRoute();
-    const page = routes[url] || routes['/'];
+    const page = routes[url] || routes["/"];
 
-    if (!getAuthToken() && url !== '/login' && url !== '/register') {
-      location.hash = '#/login';
+    if (!getAuthToken() && url !== "/login" && url !== "/register") {
+      location.hash = "#/login";
       return;
     }
 
@@ -126,15 +132,18 @@ class App {
     };
 
     try {
-      if (document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (
+        document.startViewTransition &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
         await document.startViewTransition(renderOnce).finished;
       } else {
         await renderOnce();
       }
     } catch (error) {
       if (!rendered) await renderOnce();
-      if (error.name !== 'AbortError' && error.name !== 'InvalidStateError') {
-        console.error('Error rendering page:', error);
+      if (error.name !== "AbortError" && error.name !== "InvalidStateError") {
+        console.error("Error rendering page:", error);
       }
     }
   }
