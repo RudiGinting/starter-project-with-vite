@@ -39,6 +39,35 @@ a {
   color: inherit;
 }
 
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: ease;
+}
+
+::view-transition-old(root) {
+  animation-name: storymap-fade-out;
+}
+
+::view-transition-new(root) {
+  animation-name: storymap-fade-in;
+}
+
+@keyframes storymap-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes storymap-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0ms;
+  }
+}
+
 button,
 input,
 select,

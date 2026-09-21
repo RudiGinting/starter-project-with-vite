@@ -113,12 +113,29 @@ class App {
       return;
     }
 
-    try {
+    const render = async () => {
       this.#content.innerHTML = await page.render();
       await page.afterRender();
       this.#updateNavigation();
+    };
+
+    let rendered = false;
+    const renderOnce = async () => {
+      await render();
+      rendered = true;
+    };
+
+    try {
+      if (document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        await document.startViewTransition(renderOnce).finished;
+      } else {
+        await renderOnce();
+      }
     } catch (error) {
-      console.error('Error rendering page:', error);
+      if (!rendered) await renderOnce();
+      if (error.name !== 'AbortError' && error.name !== 'InvalidStateError') {
+        console.error('Error rendering page:', error);
+      }
     }
   }
 }

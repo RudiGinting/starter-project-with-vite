@@ -78,8 +78,13 @@ export async function getStoryById(storyId) {
 }
 
 export async function getVapidPublicKey() {
-  const response = await fetch(ENDPOINTS.VAPID_KEY);
-  return response.json();
+  try {
+    const response = await fetch(ENDPOINTS.VAPID_KEY);
+    if (response.ok) return response.json();
+  } catch {
+  }
+
+  return { publicKey: CONFIG.VAPID_PUBLIC_KEY };
 }
 
 export async function subscribePush(subscription) {

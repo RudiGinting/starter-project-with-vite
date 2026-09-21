@@ -8,15 +8,19 @@ import { deleteQueuedStory, getQueuedStories } from './data/database';
 async function syncQueuedStories() {
   if (!navigator.onLine) return;
   const queuedStories = await getQueuedStories();
-  await Promise.all(queuedStories.map(async (story) => {
-    const formData = new FormData();
-    formData.append('description', story.description);
-    formData.append('photo', story.photo);
-    formData.append('lat', story.lat);
-    formData.append('lon', story.lon);
-    const result = await addStory(formData);
-    if (!result.error) await deleteQueuedStory(story.localId);
-  }));
+  for (const story of queuedStories) {
+    try {
+      const formData = new FormData();
+      formData.append('description', story.description);
+      formData.append('photo', story.photo);
+      formData.append('lat', story.lat);
+      formData.append('lon', story.lon);
+      const result = await addStory(formData);
+      if (!result.error) await deleteQueuedStory(story.localId);
+    } catch (error) {
+      console.error('Failed to synchronize queued story:', error);
+    }
+  }
 }
 
 if ('serviceWorker' in navigator) {
